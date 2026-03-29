@@ -1,0 +1,13 @@
+For our autons, we use a pid contoller implemented in a pid loop. This system takes the current position of the robot (more on that later),
+the target position given in the movement command, and calculates the difference (or error) between them. It uses this error to determine if
+it should accelerate, deccelerate, or stop. How aggressivly it does this is determined by PID constants which we manually tuned for
+precision and consistency. We determined that the most important part of this system is the first step where it finds its own position, we
+thought this because in our previous competitions, we had issues with consistency and improving the robot's ability to know where it is 
+improves consistency. Our robot uses three kinds of sensors to determine its postiion to a high degree of accuracy. The first is an IMU, or an
+inertial motion unit, (point to Imu) this sensor gives us our absolute heading (theta) relative to starting point. This sensor is very accurate
+for the robot's heading, but gives no other data. In our first three competitions, we only used this sensor in a PID loop. For this competition, we also have an Odometry wheel
+(point to odom pod), this is a rotation encoder attached to a 2-inch omni that tracks the robots position as it moves, allowing us to use an absolute
+cartesian coordinate system. However, this system is not perfect, and builds up error over time. For the 15s game autons, it does not really
+matter, but over the long time and distance of skills autons, it does build up and casue issues. To solve this, we have placed four distance
+sensors on the robot, one on each side. These allow us to calculate the distance to each of the walls. We use this to periodically update our
+coordinates with the absolue data from the distance sensors.

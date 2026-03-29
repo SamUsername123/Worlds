@@ -1,0 +1,6 @@
+Diagnostics:
+  Suppress: 'pp_including_mainfile_in_preamble'
+
+CompileFlags:
+  Remove: [-mfloat-abi=*]
+  Add: [-Qunused-arguments]
