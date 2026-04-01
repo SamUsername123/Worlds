@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Screen Test",
+    "project_name": "Main",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -424,7 +424,7 @@
       }
     },
     "upload_options": {
-      "description": "Right Side Block Goal Rush",
+      "description": "Main File",
       "slot": 1
     },
     "use_early_access": false

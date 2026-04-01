@@ -1,8 +1,8 @@
 from PIL import Image
 import struct, os
 
-INPUT = "shrek.gif"
-OUT_DIR = "usd/anim"
+INPUT = "/home/sam/Videos/Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster) [dQw4w9WgXcQ].mp4"
+OUT_DIR = "/home/sam/test_frames"
 W, H = 480, 272
 
 os.makedirs(OUT_DIR, exist_ok=True)

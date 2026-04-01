@@ -36,7 +36,7 @@ ez::Drive chassis(
 // - `2.75` is the wheel diameter
 // - `4.0` is the distance from the center of the wheel to the center of the robot
 // ez::tracking_wheel horiz_tracker(8, 2, 4.0);  // This tracking wheel is perpendicular to the drive wheels
-ez::tracking_wheel vert_tracker(6, 2, -1.17);   // This tracking wheel is parallel to the drive wheels
+ez::tracking_wheel vert_tracker(6, 2, -1.04);   // This tracking wheel is parallel to the drive wheels
 
 pros::Motor intake(1);
 pros::Motor outake(-10);
@@ -44,6 +44,7 @@ pros::Motor outake(-10);
 pros::adi::DigitalOut loader(1);
 pros::adi::DigitalOut wing(3);
 pros::adi::DigitalOut middle_hatch(2);
+pros::adi::DigitalOut low_goal_arm(4);
 
 pros::Distance front_distance(5);
 pros::Distance back_distance(8);
@@ -56,6 +57,7 @@ pros::Optical intake_color_2(14);
 bool wingValue = false;
 bool loaderValue = false;
 bool middleValue = false;
+bool lowValue = false;
 
 vector<pros::Distance> dist_list = {left_distance,back_distance,front_distance,right_distance};
 int dist_selected = 0;
@@ -63,16 +65,20 @@ int dist_selected = 0;
 // Better_Auton::Better_Auton() : auton_data("", nullptr), distances({}) {}
 
 vector<Better_Auton> autons = {
-  {ez::Auton{"Test",test_auto},distance_values_("null")},
+  // {ez::Auton{"Pursuit",odom_pure_pursuit_example},distance_values_("null")},
+  // {ez::Auton{"Boom",odom_boomerang_example},distance_values_("null")},
   // {"Left",left_split},
-  {ez::Auton{"Matchload",matchload_test},distance_values_("null")},
-  {ez::Auton{"Offsets",measure_offsets},distance_values_("null")},
+  // {ez::Auton{"Odom Test",odom_drive_example},distance_values_("null")},
+  // {ez::Auton{"Odom Long",odom_long_drive},distance_values_("null")},
+  // {ez::Auton{"Matchload",matchload_test},distance_values_("null")},
+  // {ez::Auton{"Offsets",measure_offsets},distance_values_("null")},
   // {"Left 7",left_7},
+  {ez::Auton{"Left Split",left_split},distance_values_("left")},
   {ez::Auton{"Left 4",left_super_4},distance_values_("left_wall")},
+  {ez::Auton{"Solo",solo_win_point},distance_values_("right_wall")},
   {ez::Auton{"Right 7",right_7},distance_values_("right_wall")},
   {ez::Auton{"Right 4",right_super_4},distance_values_("right_wall")},
-  {ez::Auton{"Skills",skills},distance_values_("left_wall")},
-  {ez::Auton{"Solo",solo_win_point},distance_values_("right_wall")}
+  // {ez::Auton{"Skills",skills},distance_values_("left_wall")},
 };
 Better_Auton selected_auton = autons[0]; 
 int global_selected_color = 1;
@@ -146,7 +152,8 @@ void initialize() {
       global_selected_color = 1;
     }
   }
-  
+  pros::Task ezScreenTask(ez_screen_task);
+
   intake_color_1.set_led_pwm(100);
   intake_color_2.set_led_pwm(100);
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
@@ -198,6 +205,7 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
+  low_goal_arm.set_value(false);
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
@@ -248,7 +256,6 @@ void ez_screen_task() {
   //   pros::delay(ez::util::DELAY_TIME);
   // }
 }
-pros::Task ezScreenTask(ez_screen_task);
 
 
 /**
@@ -333,6 +340,7 @@ void opcontrol() {
   int hold_count;
   string pattern;
   int vibration_time_accum = 0 ;
+  // low_goal_arm.set_value(true);
   while (true) {
     // printf(">Error:%.2f\n",chassis.fwd_rev_drivePID.error);
     double motor_power = intake.get_power(); // Reads how much wattage the motor is pulling, used for jam detection
@@ -356,9 +364,9 @@ void opcontrol() {
     }
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) // Spin out the intake out
     {
-      if (middleValue == false)
+      if (lowValue == true)
       {
-        intake.move(-127);
+        intake.move(-80);
       } 
       else
       {
@@ -376,36 +384,32 @@ void opcontrol() {
       if (middleValue == true)
         {
           outake.move(-70);
-          intake.move(127);
         } 
       else
         {
         outake.move(127);
-        intake.move(127);
         }
     }
-    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
       outake.move(-127);
-
     }
     else
     {
       outake.brake();
     }
-    // if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) // Toggle Wing position
-    // {
-    //   if(wingValue == false)
-    //   {
-    //       wing.set_value(true);
-    //       wingValue = true;
-    //   }
-    //   else
-    //   {
-    //     wing.set_value(false);
-    //     wingValue = false;
-    //   }
-      
-    // }
+    if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) // Toggle Wing position
+    {
+      if(wingValue == false)
+      {
+          wing.set_value(true);
+          wingValue = true;
+      }
+      else
+      {
+        wing.set_value(false);
+        wingValue = false;
+      } 
+    }
     if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) // Toggle Loader position
     {
       if(loaderValue == false)
@@ -427,7 +431,8 @@ void opcontrol() {
           middle_hatch.set_value(true);
           middleValue = true;
           pattern = ".-.-.-";
-          master.print(0, 0, "MIDDLE MODE");
+          // pattern = "";
+          master.print(1, 2, "MIDDLE MODE");
 
       }
       else
@@ -437,11 +442,34 @@ void opcontrol() {
         pattern = "";
         master.clear_line(0);
       }
+    }
+      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) // Toggle Low value
+    {
+      if(lowValue == false)
+      {
+          low_goal_arm.set_value(true);
+          lowValue = true;
+          pattern = "---.-";
+          master.print(1, 2, "LOW MODE       ");
+
+      }
+      else
+      {
+        low_goal_arm.set_value(false);
+        lowValue = false;
+        pattern = "";
+        master.clear_line(0);
+      }
 
       
     }
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-      mode = 5;
+      if (mode == 5){
+        mode =1;
+      }
+      else {
+        mode = 5;
+      }
     }
     if (vibration_time_accum >= 2000){
       pros::delay(10);

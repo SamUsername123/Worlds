@@ -8,7 +8,7 @@
 void default_constants();
 okapi::QLength get_average_distance(int,pros::Distance,int);
 okapi::QLength distance_to_wall(pros::Distance,okapi::QLength);
-void matchload(pros::Optical,int);
+void matchload(int);
 void right_7();
 void left_7();
 void left_split();

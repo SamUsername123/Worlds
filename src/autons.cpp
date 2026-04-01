@@ -19,20 +19,26 @@
 /////
 
 // These are out of 127
-const int DRIVE_SPEED = 110;
+const int DRIVE_SPEED = 120;
 const int TURN_SPEED = 90;
-const int SWING_SPEED = 110;
+const int SWING_SPEED = 120;
 ///
 // Constants
 ///
 void default_constants() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(28, 0.0, 220);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_drive_constants_set(13, 0.0, 40);         // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(12.0, 0.0, 40.0);        // Holds the robot straight while going forward without odom
-  chassis.pid_turn_constants_set(3.3, 0.05, 20.0, 15.0);     // Turn in place constants
+  chassis.pid_turn_constants_set(3.5, 0.0, 21.0, 0.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
-  chassis.pid_odom_angular_constants_set(7.5, 0.0, 65);    // Angular control for odom motions
-  chassis.pid_odom_boomerang_constants_set(8, 0.0, 80);  // Angular control for boomerang motions
+  chassis.pid_odom_angular_constants_set(4.5, 0.0, 24);    // Angular control for odom motions
+  chassis.pid_odom_boomerang_constants_set(5.7, 0.0, 72.25);  // Angular control for boomerang motions
+  // chassis.pid_drive_constants_set(0.1, 0.0, 0.1);         // Fwd/rev constants, used for odom and non odom motions
+  // chassis.pid_heading_constants_set(0.1, 0.0, 0.1);        // Holds the robot straight while going forward without odom
+  // chassis.pid_turn_constants_set(0.1, 0.0, 0.1, 0.0);     // Turn in place constants
+  // chassis.pid_swing_constants_set(0.1, 0.0, 0.1);           // Swing constants
+  // chassis.pid_odom_angular_constants_set(0.1, 0.0, 0.1);    // Angular control for odom motions
+  // chassis.pid_odom_boomerang_constants_set(0.1, 0.0, 0.1);  // Angular control for boomerang motions
 
   // Exit conditions
   chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
@@ -68,7 +74,7 @@ void drive_example() {
   // The second parameter is max speed the robot will drive at
   // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
   // for slew, only enable it when the drive distance is greater than the slew distance + a few inches
-
+  // pros::Task graph_task([&]() {start_graph(0, 0, 0, chassis.fwd_rev_drivePID);});
   chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
   chassis.pid_wait_quick_chain();
 
@@ -80,19 +86,22 @@ void drive_example() {
 }
 
 void odom_drive_test(){
-  pros::Task graph_task([&]() {start_graph(0, 10, 0, chassis.fwd_rev_drivePID);});
+  // pros::Task graph_task([&]() {start_graph(0, 10, 0, chassis.fwd_rev_drivePID);});
   chassis.pid_odom_set({{0_in,10_in},fwd,100});
   chassis.pid_wait();
 }
 
 void turn_test(){
+  // pros::Task graph_task([&]() {start_graph(0, 0, 90, chassis.turnPID);});
   chassis.pid_turn_set(90_deg,100);
-  
   chassis.pid_wait();
 }
 
 void odom_long_drive(){
+  // pros::Task graph_task([&]() {start_graph(0, 50, 0, chassis.fwd_rev_drivePID);});
   chassis.pid_odom_set({{0_in,50_in},fwd,120});
+  chassis.pid_wait();
+  chassis.pid_odom_set({{0_in,0_in},rev,120});
   chassis.pid_wait();
 }
 
@@ -288,6 +297,7 @@ void odom_drive_example() {
 // Odom Pure Pursuit
 ///
 void odom_pure_pursuit_example() {
+  pros::Task graph_task([&]() {start_graph(0, 0, 0, chassis.fwd_rev_drivePID);});
   // Drive to 0, 30 and pass through 6, 10 and 0, 20 on the way, with slew
   chassis.pid_odom_set({{{6_in, 10_in}, fwd, DRIVE_SPEED},
                         {{0_in, 20_in}, fwd, DRIVE_SPEED},
@@ -457,6 +467,8 @@ bool wrong_color(pros::Optical color_sensor_1,pros::Optical color_sensor_2){
 void matchload(int delay_time){
   int time_accum = 0;
   intake.move(127);
+  // chassis.pid_drive_set((get_average_distance(1, front_distance, 5)-230_mm),100);
+  // chassis.pid_wait();
   while (time_accum < delay_time){
     if (wrong_color(intake_color_1,intake_color_2) == true){
       break;
@@ -470,12 +482,14 @@ void matchload(int delay_time){
 }
 
 void matchload_test(){
+  loader.set_value(true);
+  pros::delay(500);
   intake.move(127);
-  chassis.pid_drive_set(5_in,60);
+  chassis.pid_drive_set((get_average_distance(1, front_distance, 5)-230_mm),80);
   chassis.pid_wait_quick_chain();
   loader.set_value(true);
-  matchload(1000);
-  chassis.pid_odom_set({{0_in,-5_in},rev,110});
+  matchload(3000);
+  chassis.pid_odom_set({{0_in,-10_in},rev,110});
   chassis.pid_wait();
   loader.set_value(false);
 }
@@ -659,15 +673,16 @@ void left_7(){ // Left Side 7-Block Goal Rush; Aligns With Wall; Picks up 3-Bloc
 void left_split(){ // Left Side Split; Aligns on Park Brace; Picks up 3 from Matchloader; Scores 4 in Long Goal; Picks up 3-Block Cluster; Scores 3 in Upper Middle Goal; Wing Push on Long Goal
 
   intake.move(127); // Spins the intake
-  chassis.pid_odom_set({{0_in,29.25_in},fwd,120},true); // Drives to between Matchloader and Long Goal
+  chassis.pid_odom_set({{0_in,27_in},fwd,120},true); // Drives to between Matchloader and Long Goal
   chassis.pid_wait_quick();
-  chassis.pid_turn_set(-85_deg,110); // Turns to align with Matchloader
-  chassis.pid_wait_quick_chain();
+  chassis.pid_turn_set(-90_deg,110); // Turns to align with Matchloader
+  chassis.pid_wait_quick();
+  // pros::delay(2000);
   loader.set_value(true); // Puts down loader 
-  chassis.pid_odom_set({{-11_in,29.25_in},fwd,55},false); // Slowly drives into Matchloader to not shoot out blocks
+  chassis.pid_odom_set({{-8_in,27_in},fwd,55},false); // Slowly drives into Matchloader to not shoot out blocks
   chassis.pid_wait_quick();
-  pros::delay(100); // Waits to pickup blocks
-  chassis.pid_odom_set({{18_in,31_in},rev,110},true); // Drives into Long Goal
+  matchload(2000);
+  chassis.pid_odom_set({{18_in,28_in},rev,110},true); // Drives into Long Goal
   chassis.pid_wait_quick();
   loader.set_value(false);
   intake.move(127); // Scores
@@ -753,18 +768,19 @@ void right_7(){ // Right Side 7-Block Goal Rush; Aligns With Wall; Picks up 3-Bl
   chassis.pid_odom_set({ // Multistage Pure-Pursuit movement using Odom
     {{0_in,26_in},fwd,120}, // Drives to the 3-Block cluster
     {{8_in,38_in},fwd,120}, // Drives through the blocks at an angle
-    {{30_in,8_in},fwd,120}}, // Drives infront of the Long Goal
+    {{28_in,8_in},fwd,120}}, // Drives infront of the Long Goal
     false);
   chassis.pid_wait_until(30_in); // Deploys Loader to trap blocks once the robot reaches 30_in moved
   loader.set_value(true);
   chassis.pid_wait();
   chassis.pid_turn_set(180_deg,110); // Turns to absoulte heading 180 to align with Match Loader
   chassis.pid_wait_quick_chain();
-  chassis.pid_odom_set({{30_in,0.5_in},fwd,50},false); // Slowly drives into matchloader to not shoot out blocks
+  chassis.pid_odom_set({{28_in,0_in},fwd,50},false); // Slowly drives into matchloader to not shoot out blocks
   chassis.pid_wait_quick();
-  pros::delay(100); // Waits to pickup blocks
-  intake.brake();
-  chassis.pid_odom_set({{30_in,29.5_in},rev,120},false); // Drives into Long Goal
+  matchload(2000);
+  // pros::delay(100); // Waits to pickup blocks
+  // intake.brake();
+  chassis.pid_odom_set({{28_in,29.5_in},rev,120},false); // Drives into Long Goal
   chassis.pid_wait_quick();
   intake.move(127); // Scores 7
   outake.move(127);
@@ -1224,13 +1240,13 @@ vector<double> distance_values_(string align_type){
   if (align_type == "null"){
     return {0,0,0,0};
   } else if (align_type == "left"){
-    return {2000,0,0,500};
+    return {1225,420,0,0};
   } else if (align_type == "left_wall"){
-    return {0,0,50,2000};
+    return {0,0,1000,5000};
   } else if (align_type == "right") {
     return {2000,500,0,0};
   } else if (align_type == "right_wall"){
-    return {0,2000,50,0};
+    return {0,0,100,1260};
   } else {
     return {0,0,0,0};
   }

@@ -14,6 +14,7 @@ extern pros::Motor outake;
 extern pros::adi::DigitalOut loader;
 extern pros::adi::DigitalOut wing;
 extern pros::adi::DigitalOut middle_hatch;
+extern pros::adi::DigitalOut low_goal_arm;
 extern pros::Distance front_distance;
 extern pros::Distance back_distance;
 extern pros::Distance left_distance;

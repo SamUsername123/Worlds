@@ -112,27 +112,27 @@ bool check_alignment(){
     }
     if (front_target !=0){
         double front_distance_value = front_distance.get_distance();
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,100,"Front Target: %.0f",front_target);
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,120,"Front Actual: %.0f",front_distance_value);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,100,"Front Target: %.0f  ",front_target);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,120,"Front Actual: %.0f  ",front_distance_value);
         active_y_target = front_target;
         active_y = front_distance_value;
     } else {
         double back_distance_value = back_distance.get_distance();
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,100,"Back Target: %.0f",back_target);
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,120,"Back Actual: %.0f",back_distance_value);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,100,"Back Target: %.0f  ",back_target);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,120,"Back Actual: %.0f  ",back_distance_value);
         active_y_target = back_target;
         active_y = back_distance_value;
     }
     if (left_target !=0){
         double left_distance_value = left_distance.get_distance();
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,145,"Left Target: %.0f",left_target);
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,165,"Left Actual: %.0f",left_distance_value);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,145,"Left Target: %.0f  ",left_target);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,165,"Left Actual: %.0f  ",left_distance_value);
         active_x_target = left_target;
         active_x = left_distance_value;
     } else {
         double right_distance_value = right_distance.get_distance();
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,145,"Right Target: %.0f",right_target);
-        pros::screen::print(pros::E_TEXT_MEDIUM,250,165,"Right Actual: %.0f",right_distance_value);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,145,"Right Target: %.0f  ",right_target);
+        pros::screen::print(pros::E_TEXT_MEDIUM,250,165,"Right Actual: %.0f  ",right_distance_value);
         active_x_target = right_target;
         active_x = right_distance_value;
     }
@@ -146,7 +146,7 @@ bool check_alignment(){
 }
 
 void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
-    pros::delay(2750);
+    pros::delay(2500);
     bool color_name = false;
     enum  pros::Color selected_color;
     switch (global_selected_color){
@@ -303,7 +303,8 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
                 // if (status.x >= 270 && status.x <= 450 && status.y >= 160 && status.y <= 250){
                 if (status.x >= 5 && status.x <= 200 && status.y >= 0 && status.y <= 40){
                     chassis.pid_tuner_toggle();
-                    break;     
+                    mode = 6;     
+                    presses = status.press_count;
                 } else if (status.x >= 340 && status.x <= 460 && status.y >= 80 && status.y <= 160){
                     chassis.pid_targets_reset();
                     chassis.drive_imu_reset();                  
@@ -368,7 +369,7 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
             pros::screen::set_eraser(pros::Color::black);
             bool aligned = check_alignment();
             if (aligned == true){
-                pros::screen::print(pros::E_TEXT_LARGE,270,50,"Aligned");
+                pros::screen::print(pros::E_TEXT_LARGE,250,50,"  Aligned");
             } else {
                 pros::screen::print(pros::E_TEXT_LARGE,250,50,"Not Aligned");
             }
@@ -398,6 +399,13 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
                 }
             }
             continue;
+        } else {
+            if (status.touch_status == pros::E_TOUCH_RELEASED){
+                if (status.press_count > presses){
+                    mode = 1;
+                    presses = status.press_count;
+                }
+            }
             }
         pros::delay(delay_time);
     }
