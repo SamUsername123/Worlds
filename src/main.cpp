@@ -68,7 +68,7 @@ vector<Better_Auton> autons = {
   // {ez::Auton{"Pursuit",odom_pure_pursuit_example},distance_values_("null")},
   // {ez::Auton{"Boom",odom_boomerang_example},distance_values_("null")},
   // {"Left",left_split},
-  // {ez::Auton{"Odom Test",odom_drive_example},distance_values_("null")},
+  {ez::Auton{"Odom Test",odom_drive_test},distance_values_("null")},
   // {ez::Auton{"Odom Long",odom_long_drive},distance_values_("null")},
   // {ez::Auton{"Matchload",matchload_test},distance_values_("null")},
   // {ez::Auton{"Offsets",measure_offsets},distance_values_("null")},
