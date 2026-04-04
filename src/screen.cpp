@@ -64,13 +64,16 @@ bool draw_frame(int index){
         break;
         case 2:
         snprintf(path, sizeof(path), "/usd/rick/frame_%04d.bin",index);
+        if (index != 0 && index % 3 == 0){
+            return true;
+        }
         break;
         case 3:
         snprintf(path, sizeof(path), "/usd/bee/frame_%04d.bin",index);
         break;
         case 4:
         snprintf(path, sizeof(path), "/usd/minecraft/frame_%04d.bin",index);
-        if (index != 0 && index % 7 == 0){
+        if (index != 0 && index % 10 == 0){
         } else {
             return true;
         }
@@ -429,7 +432,7 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
             draw_frame(index);
             index++;
             if (index >frames){
-                index = 16;
+                index = 0;
             }
             if (status.touch_status == pros::E_TOUCH_RELEASED){
                 if (status.press_count > presses){

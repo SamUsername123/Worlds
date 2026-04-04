@@ -1,8 +1,8 @@
 from PIL import Image
 import struct, os
 
-INPUT = "Rick Astley GIF.gif"
-OUT_DIR = "usd/rick"
+INPUT = "/home/sam/Downloads/parkour2.GIF"
+OUT_DIR = "usd/minecraft"
 W, H = 480, 272
 
 os.makedirs(OUT_DIR, exist_ok=True)
