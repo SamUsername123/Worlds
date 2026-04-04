@@ -64,6 +64,7 @@ bool draw_frame(int index){
         break;
         case 2:
         snprintf(path, sizeof(path), "/usd/rick/frame_%04d.bin",index);
+        break;
         case 3:
         snprintf(path, sizeof(path), "/usd/bee/frame_%04d.bin",index);
         break;
