@@ -54,11 +54,27 @@ static constexpr int FRAME_BYTES = FRAME_PIXELS * 4;
 static uint32_t frame_buffer[FRAME_PIXELS];
 
 bool draw_frame(int index){
-    if (index != 0 && index % 3 == 0){
-        return true;
-    }
     char path[64];
-    snprintf(path, sizeof(path), "/usd/anim/frame_%04d.bin",index);
+    switch (selected_animation){
+        case 1:
+        snprintf(path, sizeof(path), "/usd/shrek/frame_%04d.bin",index);
+        if (index != 0 && index % 3 == 0){
+            return true;
+        }
+        break;
+        case 2:
+        snprintf(path, sizeof(path), "/usd/rick/frame_%04d.bin",index);
+        case 3:
+        snprintf(path, sizeof(path), "/usd/bee/frame_%04d.bin",index);
+        break;
+        case 4:
+        snprintf(path, sizeof(path), "/usd/minecraft/frame_%04d.bin",index);
+        if (index != 0 && index % 7 == 0){
+        } else {
+            return true;
+        }
+        break;
+    }
     FILE *f = fopen(path, "rb");
     if (!f){
         return false;
@@ -168,6 +184,7 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
     int index = 16;
     int frames = 76;
     int delay_time=40;
+    int last_animation = 1;
     while (true) {
         
         pros::screen_touch_status_s_t status = pros::screen::touch_status();
@@ -177,6 +194,27 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
             pros::screen::erase();
         }
         last_mode = mode;
+         if (selected_animation != last_animation) {
+        switch (selected_animation){
+            case 1:
+                index = 16;
+                frames = 76;
+                break;
+            case 2:
+                index = 0;
+                frames = 158;
+                break;
+            case 3:
+                index = 0;
+                frames = 469;
+                break;
+            case 4:
+                index = 0;
+                frames = 891;
+                break;
+        }
+        last_animation = selected_animation;
+    }
         if (mode ==1){
             pros::screen::set_eraser(selected_color);
             if (selected_auton.auton_data.Name != last_selected_name or last_color != selected_color){
@@ -252,7 +290,7 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
                     }
                 } else if (status.x >= 180 && status.x <= 300 && status.y >= 5 && status.y <= 50){
                     if (status.press_count > presses){
-                        mode = 3;
+                        mode = 5;
                         presses = status.press_count;
                     }
             }                
@@ -394,7 +432,15 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
             }
             if (status.touch_status == pros::E_TOUCH_RELEASED){
                 if (status.press_count > presses){
-                    mode = 1;
+                //    mode  = 1;
+                    if (mode != 5){
+                        mode = 5;
+                    } else if (mode == 5 && selected_animation < 4){
+                        selected_animation++;
+                    } else {
+                        mode = 1;
+                        selected_animation = 1;
+                    }
                     presses = status.press_count;
                 }
             }

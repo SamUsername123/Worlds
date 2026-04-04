@@ -835,11 +835,12 @@ void solo_win_point(){
   // loader.set_value(true);
   chassis.pid_wait_until({62_in,-7_in});
   loader.set_value(true);
-  chassis.pid_wait_quick_chain();
+  chassis.pid_wait();
   chassis.pid_turn_set(45_deg,110);
-  chassis.pid_wait_quick_chain();
+  chassis.pid_wait();
   middle_hatch.set_value(true);
-  chassis.pid_odom_set({{60.5_in,-17.5_in},rev,120},false);
+  // chassis.pid_odom_set({{60.5_in,-17.5_in},rev,120},false);
+  chassis.pid_drive_set(-12_in,100);
   chassis.pid_wait_quick();
   intake.move(127);
   outake.move(-127);

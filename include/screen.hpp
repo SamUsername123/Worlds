@@ -4,6 +4,7 @@
 extern Better_Auton selected_auton;
 extern vector<Better_Auton> autons;
 extern int mode;
+extern int selected_animation;
 int main();
 void start_selector(vector<Better_Auton>,Better_Auton&);
 void write_selector();

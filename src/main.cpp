@@ -83,6 +83,7 @@ vector<Better_Auton> autons = {
 Better_Auton selected_auton = autons[0]; 
 int global_selected_color = 1;
 int mode = 1;
+int selected_animation = 1;
 
 void start_controller_task(){
     pros::delay(1000);
@@ -464,11 +465,13 @@ void opcontrol() {
       
     }
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-      if (mode == 5){
-        mode =1;
-      }
-      else {
+      if (mode != 5){
         mode = 5;
+      } else if (mode == 5 && selected_animation < 4){
+        selected_animation++;
+      } else {
+        mode = 1;
+        selected_animation = 1;
       }
     }
     if (vibration_time_accum >= 2000){
