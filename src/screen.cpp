@@ -65,6 +65,7 @@ bool draw_frame(int index){
         case 2:
         snprintf(path, sizeof(path), "/usd/rick/frame_%04d.bin",index);
         if (index != 0 && index % 3 == 0){
+        } else {
             return true;
         }
         break;
@@ -73,7 +74,7 @@ bool draw_frame(int index){
         break;
         case 4:
         snprintf(path, sizeof(path), "/usd/minecraft/frame_%04d.bin",index);
-        if (index != 0 && index % 10 == 0){
+        if (index != 0 && index % 8 == 0){
         } else {
             return true;
         }
@@ -91,6 +92,7 @@ bool draw_frame(int index){
     pros::screen::copy_area(0, 0, W-1, H-1, frame_buffer, W);
     return true;
 }
+
 
 void write_selector(){
     FILE * f = fopen("/usd/auton.txt", "w");
