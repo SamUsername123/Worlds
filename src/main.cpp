@@ -464,7 +464,7 @@ void opcontrol() {
 
       
     }
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+    if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
       if (mode != 5){
         mode = 5;
       } else if (mode == 5 && selected_animation < 4){

@@ -28,7 +28,7 @@ const int SWING_SPEED = 120;
 ///
 void default_constants() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(13, 0.0, 40);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_drive_constants_set(14, 0.0, 40);         // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(12.0, 0.0, 40.0);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(3.5, 0.0, 21.0, 0.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
@@ -53,7 +53,7 @@ void default_constants() {
 
   // Slew constants
   chassis.slew_turn_constants_set(3_deg, 70);
-  chassis.slew_drive_constants_set(3_in, 70);
+  chassis.slew_drive_constants_set(3_in, 90);
   chassis.slew_swing_constants_set(3_in, 80);
 
   // The amount that turns are prioritized over driving in odom motions
@@ -802,7 +802,7 @@ void right_7(){ // Right Side 7-Block Goal Rush; Aligns With Wall; Picks up 3-Bl
 
 void solo_win_point(){
   intake.move(127); // Spins the intake
-  chassis.pid_odom_set({{0_in,23_in},fwd,120},true); // Drives to between Matchloader and Long Goal
+  chassis.pid_odom_set({{0_in,22_in},fwd,120},true); // Drives to between Matchloader and Long Goal
   chassis.pid_wait_quick_chain();
   chassis.pid_turn_set(90_deg,110); // Turns to align with Matchloader
   loader.set_value(true); // Puts down loader 
@@ -811,8 +811,8 @@ void solo_win_point(){
   chassis.pid_wait_quick_chain();
   // chassis.pid_drive_set(get_average_distance(1, front_distance, 2)-230_mm,70);
   // chassis.pid_wait_quick();
-  matchload(500); // Matchloads with color sort
-  chassis.pid_odom_set({{-19_in,28_in},rev,120},true); // Drives into Long Goal
+  matchload(400); // Matchloads with color sort
+  chassis.pid_odom_set({{-19_in,27_in},rev,120},true); // Drives into Long Goal
   loader.set_value(false);
   chassis.pid_wait_quick();
   loader.set_value(false);
@@ -829,31 +829,33 @@ void solo_win_point(){
   chassis.pid_wait_quick_chain();
   intake.move(127);
   chassis.pid_odom_set({
-    {{14_in,-6_in},fwd,120},
-    {{68_in,-7_in},fwd,120}},true);
+    {{14_in,-7_in},fwd,127},
+    {{68_in,-8_in},fwd,127}},true);
   // chassis.pid_wait_until({-18_in,8_in});
   // loader.set_value(true);
   chassis.pid_wait_until({62_in,-7_in});
   loader.set_value(true);
-  chassis.pid_wait();
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set((get_average_distance(10, front_distance, 100)-470_mm),100);
+  chassis.pid_wait_quick();
   chassis.pid_turn_set(45_deg,110);
-  chassis.pid_wait();
+  chassis.pid_wait_quick();
   middle_hatch.set_value(true);
   // chassis.pid_odom_set({{60.5_in,-17.5_in},rev,120},false);
-  chassis.pid_drive_set(-12_in,100);
+  chassis.pid_drive_set(-15.5_in,100);
   chassis.pid_wait_quick();
   intake.move(127);
   outake.move(-127);
-  pros::delay(1000);
+  pros::delay(750);
   outake.brake();
-  chassis.pid_odom_set({{85_in,18_in},fwd,120});
+  chassis.pid_odom_set({{90_in,17_in},fwd,120});
   chassis.pid_wait_quick_chain();
   chassis.pid_turn_set(0_deg,100);
   chassis.pid_wait_quick_chain();
-  chassis.pid_odom_set({{86_in,24_in},fwd,80});
+  chassis.pid_odom_set({{92_in,25_in},fwd,80});
   chassis.pid_wait_quick_chain();
-  matchload(1500);
-  chassis.pid_odom_set({{86_in,-2_in},rev,120});
+  matchload(400);
+  chassis.pid_odom_set({{92_in,-2_in},rev,120});
   chassis.pid_wait_quick_chain();
   intake.move(127);
   outake.move(127);
