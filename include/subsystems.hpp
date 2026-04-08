@@ -16,6 +16,7 @@ extern pros::adi::DigitalOut wing;
 extern pros::adi::DigitalOut middle_hatch;
 extern pros::adi::DigitalOut low_goal_arm;
 extern pros::Distance front_distance;
+extern pros::Distance front_distance2;
 extern pros::Distance back_distance;
 extern pros::Distance left_distance;
 extern pros::Distance right_distance;

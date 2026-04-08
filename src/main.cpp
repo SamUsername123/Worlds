@@ -47,6 +47,7 @@ pros::adi::DigitalOut middle_hatch(2);
 pros::adi::DigitalOut low_goal_arm(4);
 
 pros::Distance front_distance(5);
+pros::Distance front_distance2(15);
 pros::Distance back_distance(8);
 pros::Distance right_distance(7);
 pros::Distance left_distance(3);
@@ -367,7 +368,7 @@ void opcontrol() {
     {
       if (lowValue == true)
       {
-        intake.move(-80);
+        intake.move(-127);
       } 
       else
       {
@@ -444,7 +445,7 @@ void opcontrol() {
         master.clear_line(0);
       }
     }
-      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) // Toggle Low value
+      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) // Toggle Low value
     {
       if(lowValue == false)
       {

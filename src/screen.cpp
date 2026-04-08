@@ -311,6 +311,10 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
             if (front_distance_value > 6000){
                 front_distance_value = 0;
             }
+            int front_distance_value2 = front_distance2.get_distance();
+            if (front_distance_value2 > 6000){
+                front_distance_value2 = 0;
+            }
             int right_distance_value = right_distance.get_distance();
             if (right_distance_value > 6000){
                 right_distance_value = 0;
@@ -323,7 +327,7 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
             if (left_distance_value > 6000){
                 left_distance_value = 0;
             }
-            pros::screen::print(pros::E_TEXT_MEDIUM,10,30,"Front Distance: %i mm",front_distance_value);
+            pros::screen::print(pros::E_TEXT_MEDIUM,10,30,"Front Distance: %i mm  ,  %imm",front_distance_value,front_distance_value2);
             pros::screen::print(pros::E_TEXT_MEDIUM,10,50,"Right Distance: %i mm",right_distance_value);
             pros::screen::print(pros::E_TEXT_MEDIUM,10,70,"Back Distance: %i mm",back_distance_value);
             pros::screen::print(pros::E_TEXT_MEDIUM,10,90,"Left Distance: %i mm",left_distance_value);
