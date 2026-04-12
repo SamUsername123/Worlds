@@ -16,6 +16,8 @@ void right_super_4();
 void skills();
 void left_super_4();
 void solo_win_point();
+void solo_win_point2();
+void solo_win_point3();
 void drive_example();
 void turn_example();
 void drive_and_turn();

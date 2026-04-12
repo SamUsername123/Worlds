@@ -7,6 +7,7 @@
 #include "okapi/api/units/QLength.hpp"
 #include "pros/colors.hpp"
 #include "pros/device.hpp"
+#include "pros/distance.hpp"
 #include "pros/motors.h"
 #include "pros/optical.hpp"
 #include "pros/rtos.hpp"
@@ -29,7 +30,7 @@ const int SWING_SPEED = 120;
 ///
 void default_constants() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(14.5, 0.0, 30);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_drive_constants_set(13.5, 0.0, 30);         // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(12.0, 0.0, 40.0);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(3.5, 0.0, 21.0, 0.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
@@ -510,6 +511,30 @@ void score_long(int delay_time){
     }
     pros::delay(wait_interval);
     time_accum += wait_interval;
+    if (intake.get_power() <= 5.5 && outake.get_power() <= 4.5){
+      break;
+    }
+}
+}
+
+void score_middle(int delay_time,int out_speed){
+  intake.move(127);
+  outake.move(-out_speed);  
+  int wait_interval = delay_time / 50;
+  int time_accum = 0;
+  pros::delay(wait_interval*3);
+  time_accum+= wait_interval*3;
+  while (time_accum < delay_time){
+    if (intake.get_power() <= 0.5 || outake.get_power() <= 0.5){
+      intake.move(-70);
+      outake.move(-70);
+      pros::delay(150);
+      time_accum+= 150;
+      outake.move(-out_speed);
+      intake.move(127);
+    }
+    pros::delay(wait_interval);
+    time_accum += wait_interval;
 
 }
 }
@@ -649,76 +674,73 @@ void matchload_test(){
 
 void left_super_4(){  // Left Side Code; Aligns Against Wall; Picks up 3-Block Cluster; Scores 4 in Long Goal; Wing Push Into Control
 
-  intake.move(127); // Spins the intake throughout the entire code
+  chassis.pid_odom_set({0.5_in,0_in,0_deg});
+  intake.move(127); // Spins the intake
   chassis.pid_odom_set({ // Multistage Pure-Pursuit movement using Odom
-    {{0_in,26_in},fwd,DRIVE_SPEED}, // Drives to the 3-Block cluster
-    {{-8_in,38_in},fwd,DRIVE_SPEED}, // Drives through the blocks at an angle
-    {{-32_in,20_in},fwd,DRIVE_SPEED}} // Drives infront of the Long Goal
-    ,false);
-  chassis.pid_wait_until(30_in);
-  loader.set_value(true); // Deploys Loader to trap blocks once the robot reaches 30_in moved
-  wing.set_value(true);
-  chassis.pid_wait();
+    {{0_in,12_in},fwd,DRIVE_SPEED}, // Drives to the 3-Block cluster
+    {{-8_in,24_in},fwd,DRIVE_SPEED}, // Drives through the blocks at an angle
+    {{-33.5_in,6_in},fwd,DRIVE_SPEED}}, // Drives infront of the Long Goal
+    false);
+  chassis.pid_wait_until(11_in); // Deploys Loader to trap blocks once the robot reaches 30_in moved
+  loader.set_value(true);
+  chassis.pid_wait_quick();
   chassis.pid_turn_set(180_deg,110); // Turns to absoulte heading 180 to align with Long Goal
   chassis.pid_wait_quick_chain();
-  chassis.pid_odom_set({{-32.5_in,29_in},rev,110},false); // Drives into Long Goal
+  chassis.pid_odom_set({{-35_in,15_in},rev,110},false); // Drives into Long Goal
   chassis.pid_wait_quick(); 
-  score_long(1200); // Waits for blocks to be scored
-  intake.brake();
+  score_long(1500);
   outake.brake();
-  chassis.pid_odom_set({{-32_in,21_in},fwd,110},false); // Drives back and turns
+  intake.brake();
+  chassis.pid_odom_set({{-35_in,6_in},fwd,110},false); // Drives back and turns
   chassis.pid_wait_quick();
   chassis.pid_turn_relative_set(-50_deg,TURN_SPEED);
   chassis.pid_wait_quick();
-  wing.set_value(false);
   chassis.pid_odom_set({
-    {{-42_in,28_in},rev,120},
-    {{-42_in,50_in},rev,110}},
+    {{-43_in,9.3_in},rev,120},
+    {{-43_in,35_in},rev,110}},
     false);
   chassis.pid_wait();
 }
 
 void left_7(){ // Left Side 7-Block Goal Rush; Aligns With Wall; Picks up 3-Block Cluster; Picks up 3 from Matchloader; Scores 7 in Long Goal and holds with Hood
-
+  chassis.pid_odom_set({0.5_in,0_in,0_deg});
   intake.move(127); // Spins the intake
   chassis.pid_odom_set({ // Multistage Pure-Pursuit movement using Odom
-    {{0_in,26_in},fwd,DRIVE_SPEED}, // Drives to the 3-Block cluster
-    {{-8_in,38_in},fwd,DRIVE_SPEED}, // Drives through the blocks at an angle
-    {{-33_in,8_in},fwd,DRIVE_SPEED}}, // Drives infront of the Long Goal
+    {{0_in,12_in},fwd,DRIVE_SPEED}, // Drives to the 3-Block cluster
+    {{-8_in,24_in},fwd,DRIVE_SPEED}, // Drives through the blocks at an angle
+    {{-33_in,0_in},fwd,DRIVE_SPEED}}, // Drives infront of the Long Goal
     false);
-  chassis.pid_wait_until(30_in); // Deploys Loader to trap blocks once the robot reaches 30_in moved
+  chassis.pid_wait_until(11_in); // Deploys Loader to trap blocks once the robot reaches 30_in moved
   loader.set_value(true);
-  chassis.pid_wait();
+  chassis.pid_wait_quick();
   chassis.pid_turn_set(180_deg,110); // Turns to absoulte heading 180 to align with Match Loader
   chassis.pid_wait_quick_chain();
-  chassis.pid_odom_set({{-33_in,-1_in},fwd,55},false); // Slowly drives into matchloader to not shoot out blocks
+  chassis.pid_odom_set({{-35.5_in,-16_in},fwd,75},false); // Slowly drives into matchloader to not shoot out blocks
   chassis.pid_wait_quick();
-  pros::delay(300); // Waits to pickup blocks
+  matchload(400);
   intake.brake();
-  chassis.pid_odom_set({{-32.5_in,29_in},rev,110},false); // Drives into Long Goal
+  chassis.pid_odom_set({{-35_in,13.5_in},rev,110},false); // Drives into Long Goal
   chassis.pid_wait_quick();
-  intake.move(127); // Scores 7
-  outake.move(127);
+  score_long(10000);
 }
 
 void left_split(){ // Left Side Split; Aligns on Park Brace; Picks up 3 from Matchloader; Scores 4 in Long Goal; Picks up 3-Block Cluster; Scores 3 in Upper Middle Goal; Wing Push on Long Goal
 
   intake.move(127); // Spins the intake
-  chassis.pid_odom_set({{0_in,26.5_in},fwd,120},true); // Drives to between Matchloader and Long Goal
+  chassis.pid_odom_set({{0_in,24_in},fwd,120},true); // Drives to between Matchloader and Long Goal
   chassis.pid_wait_quick();
   chassis.pid_turn_set(-90_deg,100); // Turns to align with Matchloader
   loader.set_value(true); // Puts down loader 
   chassis.pid_wait_quick();
   // pros::delay(2000);
-  chassis.pid_odom_set({{-10_in,31_in},fwd,60},false); // Slowly drives into Matchloader to not shoot out blocks
+  chassis.pid_odom_set({{-12_in,29.5_in},fwd,80},false); // Slowly drives into Matchloader to not shoot out blocks
   chassis.pid_wait_quick();
-  matchload(2000);
-  chassis.pid_odom_set({{18_in,31_in},rev,110},true); // Drives into Long Goal
+  matchload(400);
+  chassis.pid_odom_set({{13_in,30_in},rev,110},true); // Drives into Long Goal
+  chassis.pid_wait_until({13_in,0_in});
   loader.set_value(false);
-  chassis.pid_wait_quick();
-  intake.move(127); // Scores
-  outake.move(127);
-  pros::delay(1250); // Waits for blocks to be scored
+  chassis.pid_wait_quick_chain();
+  score_long(2000);
   intake.brake();
   outake.brake();
   chassis.pid_odom_set({ // Odom Pure-Pursuit
@@ -726,26 +748,30 @@ void left_split(){ // Left Side Split; Aligns on Park Brace; Picks up 3 from Mat
     {{22_in,8_in},fwd,120}}, // Drives into 3-Block Cluster
     false);
   intake.move(127); // Spins Intake
-  chassis.pid_wait_until(20_in);
+  chassis.pid_wait_until(18_in);
   loader.set_value(true); // Deploy loader to trap blocks
   chassis.pid_wait_quick();
   chassis.pid_turn_relative_set(175_deg,TURN_SPEED); // Turns to align Hatch with Upper Middle Goal
   chassis.pid_wait_quick();
-  chassis.pid_odom_set({{36.25_in,-6_in},rev,110});  // Drive into Upper Middle Goal
+  chassis.pid_odom_set({{36.25_in,-5.8_in},rev,110});  // Drive into Upper Middle Goal
   chassis.pid_wait_quick();
   middle_hatch.set_value(true); // Lower Hatch to score in Upper Middle Goal
-  intake.move(127); // Score
+  intake.move(-127);
+  outake.move(-127);
+  pros::delay(100);
+  intake.move(127);
   outake.move(-100);
-  pros::delay(1250); // Wait for all blocks to be scored
+  // score_middle(1750, 100);
+  pros::delay(1750); // Wait for all blocks to be scored
   intake.brake();
   outake.brake();
   loader.set_value(false); // Puts up Sweeper, closes Hatch, puts up Wing
   middle_hatch.set_value(false);
-  chassis.pid_odom_set({{15_in,16_in},fwd,120},false); // Drives back to next to Long Goal
+  chassis.pid_odom_set({{15_in,15_in},fwd,120},false); // Drives back to next to Long Goal
   chassis.pid_wait_quick();
   chassis.pid_turn_set(85_deg,TURN_SPEED); // Turns to align with Long Goal
   chassis.pid_wait_quick(); 
-  chassis.pid_odom_set({{38_in,16_in},fwd,127},false); // Drives forward to push with Wing
+  chassis.pid_odom_set({{38_in,15_in},fwd,127},false); // Drives forward to push with Wing
   chassis.pid_wait_quick();
 }
 
@@ -788,7 +814,7 @@ void right_super_4(){ // Right Side Code; Aligns Against Wall; Picks up 3-Block 
 }
 
 void right_7(){ // Right Side 7-Block Goal Rush; Aligns With Wall; Picks up 3-Block Cluster; Picks up 3 from Matchloader; Scores 7 in Long Goal and holds with Hood
-  
+  chassis.pid_odom_set({-0.5_in,0_in,0_deg});
   intake.move(127); // Spins the intake
   chassis.pid_odom_set({ // Multistage Pure-Pursuit movement using Odom
     {{0_in,12_in},fwd,120}, // Drives to the 3-Block cluster
@@ -821,28 +847,26 @@ void right_7(){ // Right Side 7-Block Goal Rush; Aligns With Wall; Picks up 3-Bl
 
 void solo_win_point(){
   intake.move(127); // Spins the intake
-  chassis.pid_odom_set({{0_in,22_in},fwd,120},true); // Drives to between Matchloader and Long Goal
+  chassis.pid_odom_set({{0_in,20_in},fwd,120},true); // Drives to between Matchloader and Long Goal
   chassis.pid_wait_quick_chain();
   chassis.pid_turn_set(90_deg,110); // Turns to align with Matchloader
   loader.set_value(true); // Puts down loader 
   chassis.pid_wait_quick_chain();
-  chassis.pid_odom_set({{10.5_in,27_in},fwd,70},false); // Slowly drives into Matchloader to not shoot out blocks
+  chassis.pid_odom_set({{10.5_in,26.5_in},fwd,70},false); // Slowly drives into Matchloader to not shoot out blocks
   chassis.pid_wait_quick_chain();
   // chassis.pid_drive_set(get_average_distance(1, front_distance, 2)-230_mm,70);
   // chassis.pid_wait_quick();
   matchload(400); // Matchloads with color sort
-  chassis.pid_odom_set({{-19_in,28_in},rev,120},true); // Drives into Long Goal
-  chassis.pid_wait_until(10_in);
+  chassis.pid_odom_set({{-19_in,27_in},rev,120},true); // Drives into Long Goal
+  chassis.pid_wait_until(-10_in);
   loader.set_value(false);
   chassis.pid_wait_quick();
   loader.set_value(false);
-  intake.move(127); // Scores
-  outake.move(127);
-  // pros::delay(1000); // Waits for blocks to be scored
-  okapi::QLength new_x = get_average_distance(200, left_distance, 1000)-445_mm;
+  score_long(1500);
+  okapi::QLength new_x = get_average_distance(20, left_distance, 100)-445_mm;
   chassis.odom_pose_set({new_x,0_in,0_deg});
   intake.brake();
-  outake.brake();
+  outake.brake(); 
   chassis.pid_odom_set({{0_in,7_in},fwd,120});
   chassis.pid_wait_quick_chain();
   chassis.pid_turn_set(110_deg,100);
@@ -850,52 +874,60 @@ void solo_win_point(){
   intake.move(127);
   chassis.pid_odom_set({
     {{14_in,-7.5_in},fwd,127},
-    {{26_in,-8.5_in},fwd,127}},true);
-  // chassis.pid_wait_until({-18_in,8_in});
-  // loader.set_value(true);
-  // chassis.pid_wait_until({62_in,-7_in});
+    {{23_in,-8.5_in},fwd,127}},true);
+  // chassis.pid_wait_until({-14_in,-8_in});
   // loader.set_value(true);
   chassis.pid_wait_quick_chain();
-  chassis.pid_drive_set(40_in,120,true);
-  chassis.pid_wait_until(32_in);
+  chassis.pid_turn_set(90_deg,100);
+  chassis.pid_wait_quick_chain();
+  // loader.set_value(true);
+  // chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(48_in,120,true);
+  chassis.pid_wait_until(30_in);
+  // chassis.pid_wait_until({62_in,-8.5_in});
   loader.set_value(true);
-  chassis.pid_wait();
-  okapi::QLength middle_goal_length;
-  if (front_distance2.get_distance() < 900){
-    middle_goal_length = get_average_distance(20, front_distance, 50);
-    printf("Distance 1 %.2f",middle_goal_length.convert(okapi::millimeter));
-  } else {
-    middle_goal_length = get_average_distance(20, front_distance2, 50);
-    printf("Distance 2 %.2f",middle_goal_length.convert(okapi::millimeter));
+  // okapi::QLength middle_goal_length;
+  // if (front_distance2.get_distance() < 600){
+  //   middle_goal_length = get_average_distance(20, front_distance, 50);
+  //   printf("Distance 1 %.2f",middle_goal_length.convert(okapi::millimeter));
+  // } else {
+  //   middle_goal_length = get_average_distance(20, front_distance2, 50);
+  //   printf("Distance 2 %.2f",middle_goal_length.convert(okapi::millimeter));
 
-  }
-  chassis.pid_drive_set(middle_goal_length-1010_mm,100);
+  // }
+  // chassis.pid_drive_set(middle_goal_length-700_mm,100);
   chassis.pid_wait();
   chassis.pid_turn_set(45_deg,110);
   chassis.pid_wait_quick();
-  middle_hatch.set_value(true);
   // chassis.pid_odom_set({{60.5_in,-17.5_in},rev,120},false);
-  chassis.pid_drive_set(-15.5_in,100);
-  chassis.pid_wait_quick();
+  chassis.pid_drive_set(-10_in,100);
+  intake.move(-80);
+  outake.move(-80);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(50);
+  middle_hatch.set_value(true);
   intake.move(127);
   outake.move(-127);
-  pros::delay(750);
+  score_middle(1750, 100);
   outake.brake();
   // chassis.pid_odom_set({{91_in,15_in},fwd,120});
   chassis.pid_drive_set(45_in,120);
+  // chassis.pid_wait_until(10_in);
+  // intake.move(-80);
+  // chassis.pid_wait_until(12_in);
+  middle_hatch.set_value(false);
   chassis.pid_wait_quick_chain();
   chassis.pid_turn_set(0_deg,100);
   chassis.pid_wait_quick_chain();
   // okapi::QLength matchloadx = chassis.odom_x_get()*okapi::inch + (get_average_distance(2, right_distance, 5)-475_mm);
   // master.print(0, 0, "%d", matchloadx.convert(okapi::inch));
-  chassis.pid_odom_set({{91_in,25_in},fwd,80});
-  chassis.pid_wait_quick_chain();
-  matchload(400);
-  chassis.pid_drive_set(-30_in,100);
+  // chassis.pid_odom_set({{91_in,25_in},fwd,80});
+  // chassis.pid_wait_quick_chain();
+  // matchload(400);
+  chassis.pid_odom_set({{92_in,1_in},rev,127});
   // chassis.pid_odom_set({{91_in,-2_in},rev,127});
   chassis.pid_wait_quick_chain();
-  intake.move(127);
-  outake.move(127);
+  score_long(2500);
   // chassis.pid_odom_set({{-13_in,28_in},fwd,120});
   // chassis.pid_wait_quick_chain();
   // chassis.pid_turn_set(200_deg,100);
@@ -932,6 +964,118 @@ void solo_win_point(){
   // chassis.pid_wait_quick_chain();
   // intake.move(127);
   // outake.move(127);
+
+}
+
+void solo_win_point3(){
+  chassis.pid_odom_set({0.5_in,0_in,0_deg});
+  intake.move(127); // Spins the intake
+  outake.move(-50);
+  chassis.pid_odom_set({
+    {{0_in,14_in},fwd,127},
+    {{-5.25_in,22.25_in},fwd,127}},true);
+  chassis.pid_wait_until(11_in); // Deploys Loader to trap blocks once the robot reaches 30_in moved
+  loader.set_value(true);
+  chassis.pid_wait_quick();
+  chassis.pid_turn_set(-135_deg,100);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(-11.5_in,100);
+  intake.brake();
+  middle_hatch.set_value(true);
+  chassis.pid_wait_quick_chain();
+  score_middle(1500, 127);
+  intake.brake();
+  outake.brake();
+  chassis.pid_drive_set(16.5_in,100);
+  middle_hatch.set_value(false);
+  loader.set_value(false);
+  chassis.pid_wait_quick();
+  chassis.pid_turn_set(85_deg,100);
+  chassis.pid_wait_quick();
+  intake.move(127);
+  outake.move(-100);
+  chassis.pid_odom_set({{29_in,21_in},fwd,127});
+  chassis.pid_wait_until({17_in,21_in});
+  loader.set_value(true);
+  chassis.pid_wait_quick();
+  chassis.pid_turn_set(-40_deg,100);
+  chassis.pid_wait_quick();
+  loader.set_value(false);
+  low_goal_arm.set_value(true);
+  chassis.pid_drive_set(13_in,100);
+  chassis.pid_wait_quick();
+  // pros::delay(100);
+  intake.move(-110);
+  outake.move(-127);
+  pros::delay(1750);
+  outake.brake();
+  intake.brake();
+  chassis.pid_drive_set(-39_in,100);
+  chassis.pid_wait_quick_chain();
+  chassis.pid_turn_set(188_deg,100);
+  loader.set_value(true);
+  low_goal_arm.set_value(false);
+  chassis.pid_wait_quick();
+  chassis.pid_odom_set({{54.5_in,-8_in},fwd,100});
+  chassis.pid_wait_quick_chain();
+  matchload(800);
+  intake.move(127);
+  chassis.pid_odom_set({{57.5_in,18_in},rev,120});
+  chassis.pid_wait_until({57.5_in,0_in});
+  // loader.set_value(false);
+  chassis.pid_wait_quick_chain();
+  score_long(10000);
+
+
+}
+
+void solo_win_point2(){
+  intake.move(127); // Spins the intake
+  chassis.pid_odom_set({{0_in,20_in},fwd,120},true); // Drives to between Matchloader and Long Goal
+  chassis.pid_wait_quick_chain();
+  chassis.pid_turn_set(90_deg,110); // Turns to align with Matchloader
+  loader.set_value(true); // Puts down loader 
+  chassis.pid_wait_quick_chain();
+  chassis.pid_odom_set({{10.5_in,26.5_in},fwd,70},false); // Slowly drives into Matchloader to not shoot out blocks
+  chassis.pid_wait_quick_chain();
+  // chassis.pid_drive_set(get_average_distance(1, front_distance, 2)-230_mm,70);
+  // chassis.pid_wait_quick();
+  matchload(400); // Matchloads with color sort
+  chassis.pid_odom_set({{-19_in,27_in},rev,120},true); // Drives into Long Goal
+  chassis.pid_wait_until(-10_in);
+  loader.set_value(false);
+  chassis.pid_wait_quick();
+  loader.set_value(false);
+  score_long(1500);
+  okapi::QLength new_x = get_average_distance(20, left_distance, 100)-445_mm;
+  chassis.odom_pose_set({new_x,0_in,0_deg});
+  intake.brake();
+  outake.brake();
+  chassis.pid_odom_set({{0_in,8_in},fwd,120});
+  chassis.pid_wait_quick_chain();
+  chassis.pid_turn_set(133_deg,100);
+  chassis.pid_wait_quick();
+  intake.move(127);
+  low_goal_arm.set_value(true);
+  // chassis.pid_odom_set({
+  //   {{17_in,-0.75_in},fwd,127},
+  //   {{19_in,-8_in},fwd,127},
+  //   {{32_in,-19.5_in},fwd,127}},true);
+  // chassis.pid_wait_until_point({13_in,3_in});
+  chassis.pid_drive_set(56_in,100);
+  // chassis.pid_wait_until({12_in,1_in});
+  chassis.pid_wait_until(12_in);
+  loader.set_value(true);
+  chassis.pid_wait_until(35_in);
+  chassis.pid_speed_max_set(70);
+  loader.set_value(false);
+  // intake.brake();
+  chassis.pid_wait_quick();
+  intake.move(-127);
+  pros::delay(2000);
+  chassis.pid_speed_max_set(127);
+  intake.brake();
+  
 
 }
 
