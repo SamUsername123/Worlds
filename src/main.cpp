@@ -10,6 +10,7 @@
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "pros/motors.h"
+#include "pros/motors.hpp"
 #include "pros/optical.hpp"
 #include "pros/rtos.hpp"
 #include "screen.hpp"
@@ -29,7 +30,7 @@ ez::Drive chassis(
     2,      // IMU Port
     2.75,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     600);   // Wheel RPM = cartridge * (motor gear / wheel gear)
-
+vector<pros::Motor> drivetrain_motors = {pros::Motor(11),pros::Motor(12),pros::Motor(13),pros::Motor(18),pros::Motor(19),pros::Motor(20)};
 // Uncomment the trackers you're using here!
 // - `8` and `9` are smart ports (making these negative will reverse the sensor)
 //  - you should get positive values on the encoders going FORWARD and RIGHT
@@ -69,16 +70,17 @@ vector<Better_Auton> autons = {
   // {ez::Auton{"Pursuit",odom_pure_pursuit_example},distance_values_("null")},
   // {ez::Auton{"Boom",odom_boomerang_example},distance_values_("null")},
   // {"Left",left_split},
-  {ez::Auton{"Solo 3",solo_win_point3},distance_values_("rght_wall")},
-  {ez::Auton{"Left 7",left_7},distance_values_("left")},
+  // {ez::Auton{"Angle Test",angle_test},distance_values_("null")},
+  // {ez::Auton{"Left 7",left_7},distance_values_("left")},
   // {ez::Auton{"Odom Long",odom_long_drive},distance_values_("null")},
   // {ez::Auton{"Matchload",matchload_test},distance_values_("null")},
   // {ez::Auton{"Offsets",measure_offsets},distance_values_("null")},
   // {"Left 7",left_7},
   {ez::Auton{"Left Split",left_split},distance_values_("left")},
   {ez::Auton{"Left 4",left_super_4},distance_values_("left_wall")},
-  // {ez::Auton{"Left 7",left_7},distance_values_("left")},
-  {ez::Auton{"Solo",solo_win_point},distance_values_("right_wall")},
+  {ez::Auton{"Left 7",left_7},distance_values_("left")},
+  {ez::Auton{"Solo",solo_win_point3},distance_values_("rght_wall")},
+  // {ez::Auton{"Solo",solo_win_point},distance_values_("right_wall")},
   {ez::Auton{"Right 7",right_7},distance_values_("right_wall")},
   {ez::Auton{"Right 4",right_super_4},distance_values_("right_wall")},
   // {ez::Auton{"Skills",skills},distance_values_("left_wall")},
@@ -387,7 +389,7 @@ void opcontrol() {
     {
       if (middleValue == true)
         {
-          outake.move(-70);
+          outake.move(-127);
         } 
       else
         {

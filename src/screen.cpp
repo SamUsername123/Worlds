@@ -119,6 +119,22 @@ void write_color(){
     }
 }
 
+std::string check_overheat(){
+    double bad_temp = 50.f;
+    for (auto motor: drivetrain_motors){
+        double motor_temp = motor.get_temperature();
+        if (motor_temp >= bad_temp){
+            return "drive";
+        }
+    }
+    if (intake.get_temperature() >= bad_temp){
+        return "intake";
+    } else if (outake.get_temperature() >= bad_temp){
+        return "outake";
+    } else{
+        return "";
+    }
+}
 
 bool check_alignment(){
     double front_target = selected_auton.distances[0];
@@ -222,6 +238,7 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
         last_animation = selected_animation;
     }
         if (mode ==1){
+            std::string overheated = check_overheat();
             pros::screen::set_eraser(selected_color);
             if (selected_auton.auton_data.Name != last_selected_name or last_color != selected_color){
                 pros::screen::set_eraser(pros::Color::black);
@@ -358,6 +375,7 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
                     chassis.drive_imu_reset();                  
                     chassis.drive_sensor_reset();
                     chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+                    presses = status.press_count;
                 } else {
                     if (status.press_count > presses){
                         mode = 1;
