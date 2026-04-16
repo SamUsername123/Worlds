@@ -239,6 +239,13 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
     }
         if (mode ==1){
             std::string overheated = check_overheat();
+            if (overheated == "drive"){
+                overheated = "Drivetrain Overheat";
+            } else if (overheated == "intake") {
+                overheated= "Intake Overheat";
+            } else if (overheated == "outake") {
+                overheated= "Outake Overheat";
+            }
             pros::screen::set_eraser(selected_color);
             if (selected_auton.auton_data.Name != last_selected_name or last_color != selected_color){
                 pros::screen::set_eraser(pros::Color::black);
@@ -262,6 +269,8 @@ void start_selector(vector<Better_Auton> autons,Better_Auton& selected_auton){
             pros::screen::set_eraser(pros::Color::black);
             pros::screen::print(pros::E_TEXT_LARGE,180,20,"11005B");
             pros::screen::print(pros::E_TEXT_SMALL,200,220,"Battery: %.0f %",pros::battery::get_capacity());
+            // pros::screen::set_pen(pros::Color::red);
+            // pros::screen::print(pros::E_TEXT_MEDIUM,160,80,"%s",overheated);
             pros::screen::set_pen(pros::Color::blue);
             if (selected_color == pros::Color::blue){
                 pros::screen::set_eraser(pros::Color::blue);
