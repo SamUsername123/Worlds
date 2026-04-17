@@ -34,7 +34,7 @@ class antijam_motor{
         try_threshold = 10;
         check = false;
     }
-    antijam_motor(pros::Motor* Motor, int Threshold_speed, int Wait_time, float Max_temp){
+    antijam_motor(pros::Motor* Motor, int Threshold_speed, int Wait_time, float Max_temp,int Try_){
         motor = Motor;
         threshold_speed = Threshold_speed;
         target_speed = 0;
@@ -42,7 +42,7 @@ class antijam_motor{
         max_temp = Max_temp;
         hold = false;
         tries = 0;
-        try_threshold = 10;
+        try_threshold = Try_;
         check = false;
     }
 };

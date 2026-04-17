@@ -25,7 +25,7 @@ void antijam_motor::jam_check(){
     double temp = this->motor->get_temperature();
     double speed = this->motor->get_actual_velocity();
     if (temp> this->max_temp){return;}
-    if (this->target_speed != 0 && speed < this->threshold_speed){
+    if (this->target_speed > 0 && speed < this->threshold_speed){
         this->tries ++;
         if (this->tries >= this->try_threshold){
             this->hold = true;
@@ -42,7 +42,7 @@ void antijam_motor::jam_check(){
 
 void start_antijam_task(){
     while (true){
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2) || master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2) || master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2) || master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2) || master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
             pros::delay(250);
         }
         if (intake.check){intake.jam_check();}

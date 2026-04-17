@@ -39,12 +39,12 @@ vector<pros::Motor> drivetrain_motors = {pros::Motor(11),pros::Motor(12),pros::M
 // ez::tracking_wheel horiz_tracker(8, 2, 4.0);  // This tracking wheel is perpendicular to the drive wheels
 ez::tracking_wheel vert_tracker(6, 2, -1.04);   // This tracking wheel is parallel to the drive wheels
 
-pros::Motor boring_intake(1);
+pros::Motor boring_intake(16);
 pros::Motor boring_outake(-10);
 
 
-antijam_motor intake = antijam_motor(&boring_intake,50,100,55.0);
-antijam_motor outake = antijam_motor(&boring_outake,50,100,60.0);
+antijam_motor intake = antijam_motor(&boring_intake,30,100 ,55.0,10);
+antijam_motor outake = antijam_motor(&boring_outake,30,100,60.0,10);
 
 // pros::Motor intake(1);
 // pros::Motor outake(-10);
@@ -87,10 +87,11 @@ vector<Better_Auton> autons = {
   {ez::Auton{"Left 4",left_super_4},distance_values_("left_wall")},
   {ez::Auton{"Left 7",left_7},distance_values_("left")},
   {ez::Auton{"Solo",solo_win_point3},distance_values_("rght_wall")},
-  // {ez::Auton{"Solo",solo_win_point},distance_values_("right_wall")},
-  {ez::Auton{"Right 7",right_7},distance_values_("right_wall")},
+  {ez::Auton{"Right Split",right_split},distance_values_("right_wall")},
   {ez::Auton{"Right 4",right_super_4},distance_values_("right_wall")},
+  {ez::Auton{"Right 7",right_7},distance_values_("right_wall")},
   {ez::Auton{"Skills",skills},distance_values_("null")},
+  {ez::Auton{"Skills2+",skills_old},distance_values_("null")},
 };
 Better_Auton selected_auton = autons[0]; 
 int global_selected_color = 1;
