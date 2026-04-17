@@ -10,6 +10,7 @@
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "pros/motors.h"
+#include "pros/motors.hpp"
 #include "pros/optical.hpp"
 #include "pros/rtos.hpp"
 #include "screen.hpp"
@@ -38,8 +39,15 @@ ez::Drive chassis(
 // ez::tracking_wheel horiz_tracker(8, 2, 4.0);  // This tracking wheel is perpendicular to the drive wheels
 ez::tracking_wheel vert_tracker(6, 2, -1.04);   // This tracking wheel is parallel to the drive wheels
 
-pros::Motor intake(1);
-pros::Motor outake(-10);
+pros::Motor boring_intake(1);
+pros::Motor boring_outake(-10);
+
+
+antijam_motor intake = antijam_motor(&boring_intake,50,100,55.0);
+antijam_motor outake = antijam_motor(&boring_outake,50,100,60.0);
+
+// pros::Motor intake(1);
+// pros::Motor outake(-10);
 
 pros::adi::DigitalOut loader(1);
 pros::adi::DigitalOut wing(3);
@@ -101,7 +109,7 @@ void start_controller_task(){
 void initialize() {
   // Print our branding over your terminal :D
   ez::ez_template_print();
-
+  boring_intake.brake();
   pros::delay(500);  // Stop the user from doing anything while legacy ports configure
   chassis.pid_tuner_disable();
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
@@ -157,6 +165,7 @@ void initialize() {
     }
   }
   pros::Task ezScreenTask(ez_screen_task);
+  pros::Task jamtask([&]() {start_antijam_task();});
 
   intake_color_1.set_led_pwm(100);
   intake_color_2.set_led_pwm(100);
@@ -344,6 +353,8 @@ void opcontrol() {
   int hold_count;
   string pattern;
   int vibration_time_accum = 0 ;
+  intake.check = true;
+  outake.check = true;
   // low_goal_arm.set_value(true);
   while (true) {
     // printf(">Error:%.2f\n",chassis.fwd_rev_drivePID.error);
@@ -355,16 +366,7 @@ void opcontrol() {
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1) || master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) // Checks if a button being pressed requires intake forward movement
     {
-      if (motor_power < 0.5 && (hold_count > 10 or (1<time_accum && time_accum<10))){ // If the motor is not moving/ moving very slow and the button has been held for long enough, spins reverse for 100 ms to unjam
-          intake.move(-127);
-          time_accum +=1;
-          hold_count=0;
-        }
-      else {
-        intake.move(127);
-        }
-      hold_count +=1;
-      time_accum =0;
+      intake.move(127);
     }
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) // Spin out the intake out
     {
@@ -380,7 +382,7 @@ void opcontrol() {
     else
     {
       hold_count = 0;
-      time_accum =0;
+      time_accum = 0;
       intake.brake();
     }
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) // Spin the outake

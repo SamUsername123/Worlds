@@ -1,6 +1,7 @@
 #include "autons.hpp"
 #include <cmath>
 #include <cstdio>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include "EZ-Template/util.hpp"
@@ -147,27 +148,18 @@ void matchload(int delay_time){
 }
 
 void score_long(int delay_time){
-  int wait_interval = delay_time / 50;
   int time_accum = 0;
-  intake.move(127);
   outake.move(127);
-  pros::delay(wait_interval*3);
-  time_accum+= wait_interval*3;
-  while (time_accum < delay_time){
-    if (intake.get_power() <= 0.5 || outake.get_power() <= 0.5){
-      intake.move(-70);
-      outake.move(-70);
-      pros::delay(150);
-      time_accum+= 150;
-      outake.move(127);
-      intake.move(127);
-    }
-    pros::delay(wait_interval);
-    time_accum += wait_interval;
-    if (intake.get_power() <= 5.5 && outake.get_power() <= 4.5){
-      break;
-    }
-}
+  intake.move(127);
+  pros::delay(250);
+  intake.check = true;
+  outake.check = true;
+  pros::delay(delay_time-250);
+  intake.brake();
+  outake.brake();
+  intake.check = false;
+  outake.check = false;
+  
 }
 
 void score_middle(int delay_time,int out_speed){
