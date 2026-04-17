@@ -2,5 +2,11 @@ Diagnostics:
   Suppress: 'pp_including_mainfile_in_preamble'
 
 CompileFlags:
-  Remove: [-mfloat-abi=*]
-  Add: [-Qunused-arguments]
+  Remove:
+    - -mfpu=*
+    - -mfloat-abi=*
+    - -mcpu=*
+    - -target
+    - -c
+  Add:
+    - --target=arm-none-eabi
