@@ -1,5 +1,6 @@
 #pragma once
 #include "EZ-Template/auton.hpp"
+#include "okapi/api/units/QAngle.hpp"
 #include "okapi/api/units/QLength.hpp"
 #include "pros/distance.hpp"
 #include "pros/optical.hpp"
@@ -8,6 +9,7 @@
 void default_constants();
 okapi::QLength get_average_distance(int,pros::Distance,int);
 okapi::QLength distance_to_wall(pros::Distance,okapi::QLength);
+okapi::QAngle get_front_angle_offset();
 void matchload(int);
 void right_7();
 void left_7();

@@ -71,7 +71,8 @@ extern pros::Optical intake_color_1;
 extern pros::Optical intake_color_2;
 
 extern int global_selected_color;
-inline double front_sensor_offset = 5.0;
+inline double front_sensor_offset = 213.36;
+
 // extern pros::adi::DigitalOut park_brace;
 
 extern void start_antijam_task();
