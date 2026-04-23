@@ -91,7 +91,6 @@ vector<Better_Auton> autons = {
   {ez::Auton{"Right 4",right_super_4},distance_values_("right_wall")},
   {ez::Auton{"Right 7",right_7},distance_values_("right_wall")},
   {ez::Auton{"Skills",skills},distance_values_("null")},
-  {ez::Auton{"Skills2+",skills_old},distance_values_("null")},
 };
 Better_Auton selected_auton = autons[0]; 
 int global_selected_color = 1;
