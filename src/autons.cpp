@@ -657,7 +657,7 @@ void right_split(){
   chassis.pid_turn_set(90_deg,110); // Turns to align with Matchloader
   loader.set_value(true); // Puts down loader 
   chassis.pid_wait_quick_chain();
-  chassis.pid_odom_set({{10.5_in,25.5_in},fwd,70},false); // Slowly drives into Matchloader to not shoot out blocks
+  chassis.pid_odom_set({{10.5_in,26_in},fwd,70},false); // Slowly drives into Matchloader to not shoot out blocks
   chassis.pid_wait_quick_chain();
   // chassis.pid_drive_set(get_average_distance(1, front_distance, 2)-230_mm,70);
   // chassis.pid_wait_quick();
@@ -673,7 +673,7 @@ void right_split(){
   chassis.odom_pose_set({new_x,0_in,0_deg});
   intake.brake();
   outake.brake();
-  chassis.pid_odom_set({{0_in,10_in},fwd,120});
+  chassis.pid_odom_set({{0_in,9_in},fwd,120});
   chassis.pid_wait_quick_chain();
   chassis.pid_turn_set(133_deg,100);
   chassis.pid_wait_quick();
@@ -690,16 +690,16 @@ void right_split(){
   intake.move(127);
   chassis.pid_wait_quick();
   pros::delay(350);
-  chassis.pid_drive_set(23.5_in,80);
+  chassis.pid_drive_set(24.5_in,80);
   chassis.pid_wait_until(5_in);
   loader.set_value(false);
-  low_goal_arm.set_value(true);
   chassis.pid_wait_quick();
+  low_goal_arm.set_value(true);
   intake.move(-100);
   pros::delay(1750);
   intake.brake();
   outake.brake();
-  chassis.pid_drive_set(-32.25_in,100);
+  chassis.pid_drive_set(-33_in,100);
   chassis.pid_wait_quick();
   chassis.pid_turn_set(0_deg,100);
   chassis.pid_wait_quick();
