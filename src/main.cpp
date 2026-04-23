@@ -83,13 +83,6 @@ vector<Better_Auton> autons = {
   // {ez::Auton{"Matchload",matchload_test},distance_values_("null")},
   // {ez::Auton{"Offsets",measure_offsets},distance_values_("null")},
   // {"Left 7",left_7},
-  {ez::Auton{"Left Split",left_split},distance_values_("left")},
-  {ez::Auton{"Left 4",left_super_4},distance_values_("left_wall")},
-  {ez::Auton{"Left 7",left_7},distance_values_("left")},
-  {ez::Auton{"Solo",solo_win_point3},distance_values_("rght_wall")},
-  {ez::Auton{"Right Split",right_split},distance_values_("right_wall")},
-  {ez::Auton{"Right 4",right_super_4},distance_values_("right_wall")},
-  {ez::Auton{"Right 7",right_7},distance_values_("right_wall")},
   {ez::Auton{"Skills",skills},distance_values_("null")},
 };
 Better_Auton selected_auton = autons[0]; 
@@ -359,9 +352,6 @@ void opcontrol() {
   // low_goal_arm.set_value(true);
   while (true) {
     // printf(">Error:%.2f\n",chassis.fwd_rev_drivePID.error);
-    double motor_power = intake.get_power(); // Reads how much wattage the motor is pulling, used for jam detection
-
-    ez_template_extras();
 
     chassis.opcontrol_tank();  // Tank control
 
@@ -390,7 +380,7 @@ void opcontrol() {
     {
       if (middleValue == true)
         {
-          outake.move(-127);
+          outake.move(-70);
         } 
       else
         {
@@ -400,32 +390,24 @@ void opcontrol() {
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
       outake.move(-127);
     }
+    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+      outake.move(127);
+    }
     else
     {
       outake.brake();
-    }
-    if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) // Toggle Wing position
-    {
-      if(wingValue == false)
-      {
-          wing.set_value(true);
-          wingValue = true;
-      }
-      else
-      {
-        wing.set_value(false);
-        wingValue = false;
-      } 
     }
     if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) // Toggle Loader position
     {
       if(loaderValue == false)
       {
           loader.set_value(true);
+          wing.set_value(true);
           loaderValue = true;
       }
       else
       {
+        wing.set_value(false);
         loader.set_value(false);
         loaderValue = false;
       }

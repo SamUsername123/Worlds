@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Main",
+    "project_name": "Drive S",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -424,8 +424,8 @@
       }
     },
     "upload_options": {
-      "description": "Main File",
-      "slot": 1
+      "description": "Driver Code for Skills",
+      "slot": 2
     },
     "use_early_access": false
   }
